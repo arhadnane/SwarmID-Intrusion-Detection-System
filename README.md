@@ -101,7 +101,7 @@ SwarmID/
 
 1. **Clone the repository**
    ```powershell
-   git clone https://github.com/arhadnane/swarmid.git
+   git clone https://github.com/arhadnane/SwarmID-Intrusion-Detection-System
    cd swarmid
    ```
 
