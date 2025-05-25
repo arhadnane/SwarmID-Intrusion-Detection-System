@@ -338,13 +338,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern .NET technologies and best practices
 - Special thanks to the open-source community for tools and libraries
 
-## 📞 Support
-
-For support and questions:
-- 📧 Email: support@swarmid.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/swarmid/issues)
-- 📖 Documentation: [Wiki](https://github.com/yourusername/swarmid/wiki)
-
 ---
 
 **SwarmID** - Protecting networks through the power of swarm intelligence 🐝🐜
