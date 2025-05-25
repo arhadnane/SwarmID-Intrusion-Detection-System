@@ -1,0 +1,50 @@
+erDiagram
+    NetworkTrafficRecord {
+        Guid Id PK
+        DateTime Timestamp
+        string SourceIP
+        string DestinationIP
+        int SourcePort
+        int DestinationPort
+        string Protocol
+        int PacketSize
+        double Duration
+        Dictionary AdditionalFeatures
+    }
+    
+    Anomaly {
+        Guid Id PK
+        DateTime DetectedAt
+        AnomalyType Type
+        double Score
+        string Description
+        List SourceIPs
+        List DestinationIPs
+        List Ports
+        AnomalyStatus Status
+        string AnalystFeedback
+        string ConfigurationUsed
+        string Algorithm
+    }
+    
+    SwarmConfiguration {
+        Guid Id PK
+        string Name
+        double MaxAnomalyScore
+        double AnomalyThreshold
+        int NumberOfAnts
+        int MaxIterations
+        double PheromoneEvaporationRate
+        double Alpha
+        double Beta
+        double Q
+        int NumberOfEmployedBees
+        int NumberOfOnlookerBees
+        int MaxTrialCount
+        double AcceptanceProbability
+        DateTime CreatedAt
+        bool IsActive
+    }
+    
+    NetworkTrafficRecord ||--o{ Anomaly : "detected_in"
+    SwarmConfiguration ||--o{ Anomaly : "uses_config"

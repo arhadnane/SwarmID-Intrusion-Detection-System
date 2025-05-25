@@ -1,0 +1,80 @@
+[**] [1:2001219:20] ET SCAN Potential SSH Scan [**]
+[Classification: Attempted Information Leak] [Priority: 2]
+12/25-14:30:00.123456 10.0.0.100:54321 -> 192.168.1.100:22
+TCP TTL:64 TOS:0x0 ID:12345 IpLen:20 DgmLen:60 DF
+***A*S** Seq: 0x12345678  Ack: 0x0  Win: 0x7210  TcpLen: 40
+TCP Options (3) => MSS: 1460 SackOK TS: 1234567890 0
+
+[**] [1:2001220:20] ET SCAN Potential Telnet Scan [**]
+[Classification: Attempted Information Leak] [Priority: 2]
+12/25-14:30:00.124567 10.0.0.100:54322 -> 192.168.1.100:23
+TCP TTL:64 TOS:0x0 ID:12346 IpLen:20 DgmLen:60 DF
+***A*S** Seq: 0x12345679  Ack: 0x0  Win: 0x7210  TcpLen: 40
+TCP Options (3) => MSS: 1460 SackOK TS: 1234567891 0
+
+[**] [1:2002910:5] ET POLICY Suspicious inbound to mySQL port 3306 [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-14:35:00.654321 10.0.0.100:54327 -> 192.168.1.100:3306
+TCP TTL:48 TOS:0x0 ID:54321 IpLen:20 DgmLen:1500
+***AP*** Seq: 0x87654321  Ack: 0x12345678  Win: 0x4000  TcpLen: 20
+
+[**] [1:2002650:8] ET POLICY Suspicious inbound to MSSQL port 1433 [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-14:35:00.789012 10.0.0.100:54326 -> 192.168.1.100:1433
+TCP TTL:48 TOS:0x0 ID:54322 IpLen:20 DgmLen:1024
+***AP*** Seq: 0x87654322  Ack: 0x12345679  Win: 0x4000  TcpLen: 20
+
+[**] [1:2100498:7] GPL ATTACK_RESPONSE id check returned root [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-14:40:15.234567 192.168.1.200:22 -> 203.0.113.100:49876
+TCP TTL:64 TOS:0x0 ID:23456 IpLen:20 DgmLen:84
+***AP*** Seq: 0x23456789  Ack: 0x87654321  Win: 0x16d0  TcpLen: 20
+uid=0(root) gid=0(root) groups=0(root)
+
+[**] [1:2003068:6] ET TROJAN Possible Backdoor Communication [**]
+[Classification: A Network Trojan was Detected] [Priority: 1]
+12/25-14:45:30.567890 172.16.0.50:8080 -> 192.168.1.100:54987
+TCP TTL:48 TOS:0x0 ID:34567 IpLen:20 DgmLen:200
+***AP*** Seq: 0x34567890  Ack: 0x23456789  Win: 0x2000  TcpLen: 20
+
+[**] [1:2012648:3] ET POLICY Excessive HTTP GET requests to single host [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-14:50:45.890123 203.0.113.200:45678 -> 192.168.1.150:80
+TCP TTL:52 TOS:0x0 ID:45678 IpLen:20 DgmLen:512
+***AP*** Seq: 0x45678901  Ack: 0x34567890  Win: 0x1000  TcpLen: 20
+GET /admin/login.php HTTP/1.1
+Host: 192.168.1.150
+User-Agent: Mozilla/5.0 (compatible; AttackBot/1.0)
+
+[**] [1:2013028:6] ET MALWARE Win32/Conficker Attempting to Connect [**]
+[Classification: A Network Trojan was Detected] [Priority: 1]
+12/25-14:55:12.345678 192.168.1.75:48765 -> 185.199.108.153:443
+TCP TTL:128 TOS:0x0 ID:56789 IpLen:20 DgmLen:1500
+***AP*** Seq: 0x56789012  Ack: 0x45678901  Win: 0x8000  TcpLen: 20
+
+[**] [1:2001569:16] ET SCAN Potential VNC Scan 5900-5920 [**]
+[Classification: Attempted Information Leak] [Priority: 2]
+12/25-15:00:00.678901 10.0.0.100:54400 -> 192.168.1.100:5900
+TCP TTL:64 TOS:0x0 ID:67890 IpLen:20 DgmLen:60 DF
+***A*S** Seq: 0x67890123  Ack: 0x0  Win: 0x7210  TcpLen: 40
+
+[**] [1:2009582:3] ET POLICY Suspicious User-Agent (Wget) [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-15:05:30.012345 203.0.113.300:56789 -> 192.168.1.200:80
+TCP TTL:52 TOS:0x0 ID:78901 IpLen:20 DgmLen:256
+***AP*** Seq: 0x78901234  Ack: 0x67890123  Win: 0x2000  TcpLen: 20
+GET /sensitive-data.txt HTTP/1.1
+Host: 192.168.1.200
+User-Agent: Wget/1.20.3
+
+[**] [1:2210054:1] SURICATA DNS Suspicious large DNS response [**]
+[Classification: Potentially Bad Traffic] [Priority: 2]
+12/25-15:10:45.456789 8.8.8.8:53 -> 192.168.1.100:50234
+UDP TTL:64 TOS:0x0 ID:89012 IpLen:20 DgmLen:4096
+Len: 4076
+
+[**] [1:2013504:5] ET POLICY Outbound SSL/TLS Certificate Observed (Facebook) [**]
+[Classification: Not Suspicious Traffic] [Priority: 3]
+12/25-15:15:20.789012 192.168.1.101:48234 -> 172.217.14.238:443
+TCP TTL:64 TOS:0x0 ID:90123 IpLen:20 DgmLen:1200
+***AP*** Seq: 0x90123456  Ack: 0x78901234  Win: 0x4000  TcpLen: 20

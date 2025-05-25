@@ -1,0 +1,406 @@
+@page "/traffic"
+@using SwarmID.Core.Models
+@using SwarmID.Core.Interfaces
+@inject ITrafficCollector TrafficCollector
+@inject ISwarmDetector SwarmDetector
+@inject IAnomalyRepository AnomalyRepository
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Traffic Analysis</PageTitle>
+
+<h1>Network Traffic Analysis</h1>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Upload Traffic Data</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Select traffic data file:</label>
+                    <InputFile id="fileInput" OnChange="HandleFileSelected" class="form-control" accept=".log,.txt,.json" />
+                </div>
+                <div class="mb-3">
+                    <label for="dataType" class="form-label">Data Type:</label>
+                    <select id="dataType" @bind="selectedDataType" class="form-select">
+                        <option value="@TrafficDataType.ZeekLogs">Zeek Logs</option>
+                        <option value="@TrafficDataType.SnortAlerts">Snort Alerts</option>
+                        <option value="@TrafficDataType.PcapFile">PCAP File</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" @onclick="AnalyzeFile" disabled="@(selectedFile == null || isAnalyzing)">
+                    @if (isAnalyzing)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Analyzing...</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-search me-2"></i>
+                        <span>Analyze File</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Real-time Monitoring</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-3">
+                            Status: 
+                            <span class="badge @(isMonitoring ? "bg-success" : "bg-secondary")">
+                                @(isMonitoring ? "Active" : "Stopped")
+                            </span>
+                        </div>
+                    </div>
+                    @if (isMonitoring)
+                    {
+                        <div class="alert alert-info">
+                            <small>Real-time traffic monitoring is active. New anomalies will be detected automatically.</small>
+                        </div>
+                    }
+                </div>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-success" @onclick="StartMonitoring" disabled="@isMonitoring">
+                        <i class="fas fa-play me-2"></i>Start Monitoring
+                    </button>
+                    <button class="btn btn-danger" @onclick="StopMonitoring" disabled="@(!isMonitoring)">
+                        <i class="fas fa-stop me-2"></i>Stop Monitoring
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (analysisResult != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Analysis Results</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-primary">@analysisResult.TotalRecordsProcessed</h3>
+                                <p class="text-muted">Records Processed</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-danger">@analysisResult.AnomaliesDetected</h3>
+                                <p class="text-muted">Anomalies Detected</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-warning">@GetDetectionRate()%</h3>
+                                <p class="text-muted">Detection Rate</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-info">@GetAverageConfidence()%</h3>
+                                <p class="text-muted">Avg. Confidence</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (analysisResult.Anomalies.Any())
+                    {
+                        <hr>
+                        <h6>Detected Anomalies</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Source → Destination</th>
+                                        <th>Type</th>
+                                        <th>Confidence</th>
+                                        <th>Swarm Metrics</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var anomaly in analysisResult.Anomalies.Take(10))
+                                    {                                        <tr>
+                                            <td>
+                                                @if (anomaly.SourceIPs.Any() && anomaly.DestinationIPs.Any())
+                                                {
+                                                    @($"{anomaly.SourceIPs.First()}:{(anomaly.Ports.Any() ? anomaly.Ports.First() : 0)}")
+                                                    <text>→</text>
+                                                    @($"{anomaly.DestinationIPs.First()}:{(anomaly.Ports.Skip(1).Any() ? anomaly.Ports.Skip(1).First() : 0)}")
+                                                }
+                                                else
+                                                {
+                                                    <text>N/A</text>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">@anomaly.Type</span>
+                                            </td>
+                                            <td>
+                                                <div class="progress" style="height: 16px; min-width: 80px;">
+                                                    <div class="progress-bar bg-danger" role="progressbar" 
+                                                         style="width: @(anomaly.Score)%">
+                                                        @(anomaly.Score.ToString("F1"))%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small>
+                                                    <span class="badge bg-light text-dark me-1">
+                                                        Algorithm: @anomaly.Algorithm
+                                                    </span>
+                                                    <span class="badge bg-light text-dark me-1">
+                                                        Config: @anomaly.ConfigurationUsed
+                                                    </span>
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        @if (analysisResult.Anomalies.Count > 10)
+                        {
+                            <p class="text-muted">
+                                <small>Showing 10 of @analysisResult.Anomalies.Count anomalies. 
+                                       View all in the <a href="/anomalies">Anomalies Dashboard</a>.</small>
+                            </p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (recentTrafficRecords.Any())
+{
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Traffic (Live Monitoring)</h5>
+                    <small class="text-muted">Last @recentTrafficRecords.Count records</small>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Source</th>
+                                    <th>Destination</th>
+                                    <th>Protocol</th>
+                                    <th>Bytes</th>
+                                    <th>Duration</th>
+                                    <th>Flags</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var record in recentTrafficRecords.OrderByDescending(r => r.Timestamp).Take(100))
+                                {
+                                    <tr class="@(IsSuspicious(record) ? "table-warning" : "")">
+                                        <td><small>@record.Timestamp.ToString("HH:mm:ss")</small></td>                                        <td><small>@($"{record.SourceIP}:{record.SourcePort}")</small></td>
+                                        <td><small>@($"{record.DestinationIP}:{record.DestinationPort}")</small></td>
+                                        <td>
+                                            <span class="badge bg-info">@record.Protocol</span>
+                                        </td>
+                                        <td><small>@(record.PacketSize.ToString("N0"))</small></td>
+                                        <td><small>@record.Duration.ToString("F2")s</small></td>
+                                        <td>
+                                            @if (IsSuspicious(record))
+                                            {
+                                                <span class="badge bg-warning">Suspicious</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IBrowserFile? selectedFile;
+    private TrafficDataType selectedDataType = TrafficDataType.ZeekLogs;
+    private bool isAnalyzing = false;
+    private bool isMonitoring = false;
+    private AnalysisResult? analysisResult;
+    private List<NetworkTrafficRecord> recentTrafficRecords = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Subscribe to real-time traffic data
+        TrafficCollector.TrafficDataReceived += OnTrafficDataReceived;
+    }
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        analysisResult = null; // Clear previous results
+    }
+
+    private async Task AnalyzeFile()
+    {
+        if (selectedFile == null) return;
+
+        try
+        {
+            isAnalyzing = true;
+            StateHasChanged();
+
+            // Save file to temp location
+            var tempPath = Path.GetTempFileName();
+            await using var stream = selectedFile.OpenReadStream(maxAllowedSize: 50 * 1024 * 1024); // 50MB max
+            await using var fileStream = new FileStream(tempPath, FileMode.Create);
+            await stream.CopyToAsync(fileStream);
+            fileStream.Close();
+
+            // Parse traffic data
+            var trafficRecords = await TrafficCollector.ParseTrafficDataAsync(tempPath, selectedDataType);
+            
+            // Detect anomalies using swarm intelligence
+            var anomalies = await SwarmDetector.DetectAnomaliesAsync(trafficRecords);
+
+            // Save anomalies to repository
+            foreach (var anomaly in anomalies)
+            {
+                await AnomalyRepository.SaveAnomalyAsync(anomaly);
+            }
+
+            // Create analysis result
+            analysisResult = new AnalysisResult
+            {
+                TotalRecordsProcessed = trafficRecords.Count(),
+                AnomaliesDetected = anomalies.Count(),
+                Anomalies = anomalies.ToList()
+            };
+
+            // Clean up temp file
+            System.IO.File.Delete(tempPath);
+
+            await JSRuntime.InvokeVoidAsync("alert", 
+                $"Analysis complete! Processed {analysisResult.TotalRecordsProcessed} records and detected {analysisResult.AnomaliesDetected} anomalies.");
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error analyzing file: {ex.Message}");
+        }
+        finally
+        {
+            isAnalyzing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task StartMonitoring()
+    {
+        try
+        {
+            await TrafficCollector.StartMonitoringAsync();
+            isMonitoring = true;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error starting monitoring: {ex.Message}");
+        }
+    }
+
+    private async Task StopMonitoring()
+    {
+        try
+        {
+            await TrafficCollector.StopMonitoringAsync();
+            isMonitoring = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error stopping monitoring: {ex.Message}");
+        }
+    }
+
+    private async void OnTrafficDataReceived(object? sender, NetworkTrafficRecord record)
+    {
+        await InvokeAsync(() =>
+        {
+            recentTrafficRecords.Add(record);
+            
+            // Keep only last 1000 records
+            if (recentTrafficRecords.Count > 1000)
+            {
+                recentTrafficRecords.RemoveAt(0);
+            }
+            
+            StateHasChanged();
+        });
+
+        // Analyze single record for real-time detection
+        try
+        {
+            var anomalies = await SwarmDetector.DetectAnomaliesAsync(new[] { record });
+            foreach (var anomaly in anomalies)
+            {
+                await AnomalyRepository.SaveAnomalyAsync(anomaly);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Log error but don't stop monitoring
+            Console.WriteLine($"Error in real-time analysis: {ex.Message}");
+        }
+    }
+
+    private bool IsSuspicious(NetworkTrafficRecord record)
+    {
+        // Simple heuristics for visual indication
+        return record.AdditionalFeatures.ContainsKey("suspicious") && 
+               (bool)record.AdditionalFeatures["suspicious"];
+    }
+
+    private string GetDetectionRate()
+    {
+        if (analysisResult == null || analysisResult.TotalRecordsProcessed == 0) 
+            return "0";
+        
+        return ((double)analysisResult.AnomaliesDetected / analysisResult.TotalRecordsProcessed * 100).ToString("F1");
+    }
+
+    private string GetAverageConfidence()
+    {
+        if (analysisResult == null || !analysisResult.Anomalies.Any())
+            return "0";
+        
+        return (analysisResult.Anomalies.Average(a => a.Score)).ToString("F1");
+    }
+
+    public void Dispose()
+    {
+        TrafficCollector.TrafficDataReceived -= OnTrafficDataReceived;
+    }
+
+    public class AnalysisResult
+    {
+        public int TotalRecordsProcessed { get; set; }
+        public int AnomaliesDetected { get; set; }
+        public List<Anomaly> Anomalies { get; set; } = new();
+    }
+}

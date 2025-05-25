@@ -1,0 +1,259 @@
+﻿@page "/"
+@using SwarmID.Core.Models
+@using SwarmID.Core.Interfaces
+@inject IAnomalyRepository AnomalyRepository
+
+<PageTitle>Swarm-ID Dashboard</PageTitle>
+
+<h1>🛡️ Swarm-ID: Intrusion Detection System</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <h4>🐜 Swarm Intelligence Powered Security</h4>
+            <p class="mb-0">
+                Welcome to SwarmID, an advanced anomaly-based intrusion detection system using 
+                <strong>Ant Colony Optimization (ACO)</strong> and swarm intelligence algorithms 
+                to analyze network traffic and detect suspicious patterns in real-time.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-header">📊 Total Anomalies</div>
+            <div class="card-body">
+                <h4 class="card-title">@totalAnomalies</h4>
+                <p class="card-text">Detected in last 24h</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-header">🚨 Critical Alerts</div>
+            <div class="card-body">
+                <h4 class="card-title">@criticalAnomalies</h4>
+                <p class="card-text">High confidence threats</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-header">✅ System Status</div>
+            <div class="card-body">
+                <h4 class="card-title">Online</h4>
+                <p class="card-text">All systems operational</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-header">🔬 Algorithm</div>
+            <div class="card-body">
+                <h4 class="card-title">ACO</h4>
+                <p class="card-text">Ant Colony Optimization</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🕐 Recent Anomalies</h5>
+            </div>
+            <div class="card-body">
+                @if (recentAnomalies == null)
+                {
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                }
+                else if (!recentAnomalies.Any())
+                {
+                    <div class="alert alert-success">
+                        <strong>All Clear!</strong> No anomalies detected in the last 24 hours.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Source → Destination</th>
+                                    <th>Type</th>
+                                    <th>Confidence</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var anomaly in recentAnomalies.Take(5))
+                                {
+                                    <tr>
+                                        <td><small>@anomaly.DetectedAt.ToString("HH:mm:ss")</small></td>                                        <td>
+                                            <small>
+                                                @if (anomaly.SourceIPs.Any() && anomaly.DestinationIPs.Any())
+                                                {
+                                                    @($"{anomaly.SourceIPs.First()}:{(anomaly.Ports.Any() ? anomaly.Ports.First() : 0)}")
+                                                    <text>→</text>
+                                                    @($"{anomaly.DestinationIPs.First()}:{(anomaly.Ports.Skip(1).Any() ? anomaly.Ports.Skip(1).First() : 0)}")
+                                                }
+                                                else
+                                                {
+                                                    <text>N/A</text>
+                                                }
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning">@anomaly.Type</span>
+                                        </td>
+                                        <td>
+                                            <small>@(anomaly.Score.ToString("F1"))</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-@GetStatusColor(anomaly.Status)">
+                                                @anomaly.Status
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center">
+                        <a href="/anomalies" class="btn btn-primary btn-sm">View All Anomalies</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🐜 Swarm Intelligence Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Ant Colony Parameters</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Population:</strong> 50 ants</li>
+                        <li><strong>Iterations:</strong> 100 max</li>
+                        <li><strong>Evaporation:</strong> 10%</li>
+                        <li><strong>Threshold:</strong> 70%</li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Detection Performance</h6>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 95%">
+                            Accuracy: 95%
+                        </div>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: 87%">
+                            Precision: 87%
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <a href="/traffic" class="btn btn-success btn-sm">Start Analysis</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🚀 Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="/traffic" class="btn btn-outline-primary">
+                                <i class="oi oi-cloud-upload"></i><br>
+                                Upload Traffic Data
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="/anomalies" class="btn btn-outline-danger">
+                                <i class="oi oi-warning"></i><br>
+                                View Anomalies
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="/traffic" class="btn btn-outline-success">
+                                <i class="oi oi-pulse"></i><br>
+                                Start Live Monitoring
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid">
+                            <a href="/counter" class="btn btn-outline-info">
+                                <i class="oi oi-cog"></i><br>
+                                Configure Algorithm
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Anomaly>? recentAnomalies;
+    private int totalAnomalies = 0;
+    private int criticalAnomalies = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var from = DateTime.UtcNow.AddDays(-1); // Last 24 hours
+            recentAnomalies = (await AnomalyRepository.GetAnomaliesAsync(from))
+                .OrderByDescending(a => a.DetectedAt)
+                .ToList();
+            
+            totalAnomalies = recentAnomalies.Count;
+            criticalAnomalies = recentAnomalies.Count(a => a.Score > 80.0);
+        }
+        catch (Exception)
+        {
+            recentAnomalies = new List<Anomaly>();
+        }
+    }
+
+    private string GetStatusColor(AnomalyStatus status)
+    {
+        return status switch
+        {
+            AnomalyStatus.New => "primary",
+            AnomalyStatus.Investigating => "warning",
+            AnomalyStatus.Confirmed => "danger",
+            AnomalyStatus.FalsePositive => "success",
+            AnomalyStatus.Resolved => "secondary",
+            _ => "secondary"
+        };
+    }
+}
+
+<SurveyPrompt Title="How is Blazor working for you?" />

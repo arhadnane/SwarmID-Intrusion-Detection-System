@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SwarmID.Core\SwarmID.Core.csproj" />
+    <ProjectReference Include="..\SwarmID.TrafficAnalysis\SwarmID.TrafficAnalysis.csproj" />
+  </ItemGroup>
+
+</Project>

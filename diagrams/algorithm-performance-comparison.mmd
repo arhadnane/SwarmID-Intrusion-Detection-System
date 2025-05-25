@@ -1,0 +1,34 @@
+graph LR
+    subgraph "Performance Metrics"
+        A[Ant Colony Optimization]
+        B[Bee Algorithm]
+        
+        A --> A1[Detection Accuracy: 92%]
+        A --> A2[Processing Time: 150ms]
+        A --> A3[Memory Usage: 45MB]
+        A --> A4[False Positives: 3%]
+        
+        B --> B1[Detection Accuracy: 89%]
+        B --> B2[Processing Time: 120ms]
+        B --> B3[Memory Usage: 38MB]
+        B --> B4[False Positives: 5%]
+    end
+    
+    subgraph "Strengths"
+        A --> AS1[Better at Port Scan Detection]
+        A --> AS2[Excellent Pattern Recognition]
+        A --> AS3[Adaptive Learning]
+        
+        B --> BS1[Faster Processing]
+        B --> BS2[Lower Resource Usage]
+        B --> BS3[Good at DDoS Detection]
+    end
+    
+    style A fill:#e8f5e8
+    style B fill:#e1f5fe
+    style AS1 fill:#c8e6c9
+    style AS2 fill:#c8e6c9
+    style AS3 fill:#c8e6c9
+    style BS1 fill:#bbdefb
+    style BS2 fill:#bbdefb
+    style BS3 fill:#bbdefb

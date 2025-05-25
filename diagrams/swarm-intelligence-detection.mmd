@@ -1,0 +1,52 @@
+flowchart TD
+    INPUT[NetworkTrafficRecord] --> PARALLEL{Run Both Algorithms}
+    
+    PARALLEL --> ACO_START[Ant Colony Optimization]
+    PARALLEL --> BEE_START[Bee Algorithm]
+    
+    subgraph "ACO Process"
+        ACO_START --> ACO_INIT[Initialize Ant Colony]
+        ACO_INIT --> ACO_ANTS[Deploy Ants on Network Graph]
+        ACO_ANTS --> ACO_EXPLORE[Ants Explore Traffic Patterns]
+        ACO_EXPLORE --> ACO_PHEROMONE[Update Pheromone Trails]
+        ACO_PHEROMONE --> ACO_ANALYZE[Analyze Path Convergence]
+        ACO_ANALYZE --> ACO_SCORE[Calculate Anomaly Score]
+    end
+    
+    subgraph "Bee Process"
+        BEE_START --> BEE_INIT[Initialize Bee Colony]
+        BEE_INIT --> BEE_EMPLOYED[Employed Bees Search]
+        BEE_EMPLOYED --> BEE_ONLOOKER[Onlooker Bees Evaluate]
+        BEE_ONLOOKER --> BEE_SCOUT[Scout Bees Explore]
+        BEE_SCOUT --> BEE_SELECT[Select Best Solutions]
+        BEE_SELECT --> BEE_SCORE[Calculate Anomaly Score]
+    end
+    
+    ACO_SCORE --> COMBINE[Combine Algorithm Results]
+    BEE_SCORE --> COMBINE
+    
+    COMBINE --> THRESHOLD{Score > Threshold?}
+    THRESHOLD -->|Yes| CLASSIFY[Classify Anomaly Type]
+    THRESHOLD -->|No| NORMAL[Mark as Normal Traffic]
+    
+    CLASSIFY --> TYPE{Anomaly Type?}
+    TYPE -->|Port Scan| PS[PortScan Anomaly]
+    TYPE -->|DDoS| DD[DDoS Anomaly]
+    TYPE -->|C&C| CC[Command & Control Anomaly]
+    TYPE -->|Data Exfiltration| DE[Data Exfiltration Anomaly]
+    
+    PS --> SAVE[Save to Database]
+    DD --> SAVE
+    CC --> SAVE
+    DE --> SAVE
+    NORMAL --> LOG[Log Normal Traffic]
+    
+    SAVE --> NOTIFY[Notify Dashboard via SignalR]
+    LOG --> END([Process Complete])
+    NOTIFY --> END
+    
+    style INPUT fill:#e1f5fe
+    style COMBINE fill:#fff3e0
+    style SAVE fill:#c8e6c9
+    style NOTIFY fill:#f3e5f5
+    style END fill:#e8f5e8

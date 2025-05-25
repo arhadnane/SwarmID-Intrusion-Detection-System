@@ -1,0 +1,29 @@
+flowchart TD
+    START([Start Traffic Analysis]) --> INPUT{Input Type?}
+    
+    INPUT -->|Zeek Logs| ZEEK[Parse Zeek Log Format]
+    INPUT -->|Snort Alerts| SNORT[Parse Snort Alert Format]
+    INPUT -->|PCAP File| PCAP[Parse PCAP File]
+    INPUT -->|Real-time| REALTIME[Generate Simulated Data]
+    
+    ZEEK --> EXTRACT1[Extract Network Features]
+    SNORT --> EXTRACT2[Extract Alert Features]
+    PCAP --> EXTRACT3[Extract Packet Features]
+    REALTIME --> EXTRACT4[Generate Traffic Features]
+    
+    EXTRACT1 --> RECORD[NetworkTrafficRecord]
+    EXTRACT2 --> RECORD
+    EXTRACT3 --> RECORD
+    EXTRACT4 --> RECORD
+    
+    RECORD --> VALIDATE{Valid Record?}
+    VALIDATE -->|Yes| SWARM[Send to Swarm Algorithms]
+    VALIDATE -->|No| ERROR[Log Error & Skip]
+    
+    ERROR --> INPUT
+    SWARM --> END([Continue to Detection])
+    
+    style START fill:#c8e6c9
+    style END fill:#c8e6c9
+    style RECORD fill:#fff3e0
+    style ERROR fill:#ffcdd2

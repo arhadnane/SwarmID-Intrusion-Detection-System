@@ -1,0 +1,77 @@
+graph TB
+    subgraph "Data Sources"
+        ZL[Zeek Logs]
+        SA[Snort Alerts]
+        PC[PCAP Files]
+        RT[Real-time Traffic]
+    end
+    
+    subgraph "SwarmID.TrafficAnalysis"
+        TA[ZeekLogParser]
+        TA --> |Parse| NTR[NetworkTrafficRecord]
+    end
+    
+    subgraph "SwarmID.Core"
+        subgraph "Algorithms"
+            ACO[Ant Colony Optimization]
+            BEE[Bee Algorithm]
+        end
+        
+        subgraph "Models"
+            ANOM[Anomaly]
+            CONFIG[SwarmConfiguration]
+        end
+        
+        subgraph "Repository"
+            REPO[LiteDbAnomalyRepository]
+        end
+    end
+    
+    subgraph "SwarmID.Api"
+        AC[AnomaliesController]
+        TC[TrafficController]
+    end
+    
+    subgraph "SwarmID.Dashboard"
+        IDX[Index.razor]
+        ANM[Anomalies.razor]
+        TRF[Traffic.razor]
+        SR[SignalR Hub]
+    end
+    
+    subgraph "Database"
+        DB[(LiteDB)]
+    end
+    
+    ZL --> TA
+    SA --> TA
+    PC --> TA
+    RT --> TA
+    
+    NTR --> ACO
+    NTR --> BEE
+    
+    ACO --> ANOM
+    BEE --> ANOM
+    
+    ANOM --> REPO
+    REPO --> DB
+    
+    REPO --> AC
+    NTR --> TC
+    
+    AC --> IDX
+    AC --> ANM
+    TC --> TRF
+    
+    SR --> IDX
+    SR --> ANM
+    SR --> TRF
+    
+    style ZL fill:#ffecb3
+    style SA fill:#ffecb3
+    style PC fill:#ffecb3
+    style RT fill:#ffecb3
+    style ACO fill:#e8f5e8
+    style BEE fill:#e8f5e8
+    style DB fill:#e1f5fe

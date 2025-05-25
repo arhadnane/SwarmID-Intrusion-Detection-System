@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant TC as TrafficController
+    participant AC as AnomaliesController
+    participant SR as SignalR Hub
+    participant DB as LiteDB Repository
+    participant UI as Dashboard UI
+    
+    Note over TC,UI: Real-time Traffic Monitoring
+    
+    TC->>DB: Store NetworkTrafficRecord
+    TC->>SR: Broadcast New Traffic Data
+    SR->>UI: Update Traffic.razor
+    
+    Note over AC,UI: Anomaly Detection & Management
+    
+    AC->>DB: Query New Anomalies
+    DB-->>AC: Return Anomaly List
+    AC->>SR: Broadcast Anomaly Updates
+    SR->>UI: Update Index.razor & Anomalies.razor
+    
+    Note over UI: User Interactions
+    
+    UI->>AC: Update Anomaly Status
+    AC->>DB: Save Status Change
+    AC->>SR: Broadcast Status Update
+    SR->>UI: Refresh Anomaly Views
+    
+    Note over UI: Dashboard Navigation
+    
+    UI->>UI: Navigate to Anomalies.razor
+    UI->>AC: Load Anomaly Details
+    AC->>DB: Query Anomaly by ID
+    DB-->>AC: Return Anomaly Details
+    AC-->>UI: Display Anomaly Information

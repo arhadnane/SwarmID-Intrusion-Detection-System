@@ -1,0 +1,57 @@
+graph TB
+    subgraph "Production Environment"
+        LB[Load Balancer]
+        
+        subgraph "Web Tier"
+            API1[SwarmID.Api Instance 1]
+            API2[SwarmID.Api Instance 2]
+            DASH1[SwarmID.Dashboard Instance 1]
+            DASH2[SwarmID.Dashboard Instance 2]
+        end
+        
+        subgraph "Processing Tier"
+            PROC1[Traffic Analysis Service 1]
+            PROC2[Traffic Analysis Service 2]
+            QUEUE[Message Queue]
+        end
+        
+        subgraph "Data Tier"
+            DB1[(Primary LiteDB)]
+            DB2[(Backup LiteDB)]
+            LOGS[(Log Storage)]
+        end
+        
+        subgraph "Monitoring"
+            MON[System Monitoring]
+            ALERT[Alert Management]
+        end
+    end
+    
+    LB --> API1
+    LB --> API2
+    LB --> DASH1
+    LB --> DASH2
+    
+    API1 --> QUEUE
+    API2 --> QUEUE
+    
+    QUEUE --> PROC1
+    QUEUE --> PROC2
+    
+    PROC1 --> DB1
+    PROC2 --> DB1
+    
+    DB1 --> DB2
+    
+    API1 --> MON
+    API2 --> MON
+    PROC1 --> MON
+    PROC2 --> MON
+    
+    MON --> ALERT
+    MON --> LOGS
+    
+    style LB fill:#ffecb3
+    style QUEUE fill:#e1f5fe
+    style DB1 fill:#c8e6c9
+    style MON fill:#f3e5f5
