@@ -385,13 +385,19 @@ public class ZeekLogParser : ITrafficCollector
             Console.WriteLine($"Error parsing individual packet: {ex.Message}");
             return null;
         }
-    }
-
-    private NetworkTrafficRecord GenerateSimulatedTrafficRecord(Random random)
+    }    private NetworkTrafficRecord GenerateSimulatedTrafficRecord(Random random)
     {
         var protocols = new[] { "TCP", "UDP", "ICMP" };
-        var srcIps = new[] { "192.168.1.100", "192.168.1.101", "192.168.1.102", "10.0.0.1", "172.16.0.1" };
-        var dstIps = new[] { "8.8.8.8", "1.1.1.1", "192.168.1.1", "10.0.0.254", "172.16.0.254" };
+        
+        // Include your real network range 192.168.88.xxx for simulation
+        var srcIps = new[] { 
+            "192.168.88.100", "192.168.88.101", "192.168.88.102", "192.168.88.103", "192.168.88.105",
+            "192.168.1.100", "192.168.1.101", "10.0.0.1", "172.16.0.1" 
+        };
+        var dstIps = new[] { 
+            "8.8.8.8", "1.1.1.1", "192.168.88.1", "192.168.88.254", 
+            "192.168.1.1", "10.0.0.254", "172.16.0.254" 
+        };
         var commonPorts = new[] { 80, 443, 22, 25, 53, 21, 23, 3389, 1433, 3306 };
 
         var isSuspicious = random.NextDouble() < 0.1;
@@ -443,6 +449,39 @@ public class ZeekLogParser : ITrafficCollector
         {
             Console.WriteLine("Invalid selection.");
         }
+    }
+
+    public void SetMonitoringMode(bool realTimeMode)
+    {
+        if (_isMonitoring)
+            throw new InvalidOperationException("Cannot change monitoring mode while monitoring is active. Stop monitoring first.");
+        
+        _monitoringMode = realTimeMode ? TrafficMonitoringMode.RealTime : TrafficMonitoringMode.Simulation;
+        
+        if (realTimeMode)
+        {
+            // Auto-select the first available network interface if none selected
+            if (_activeDevice == null)
+            {
+                var devices = CaptureDeviceList.Instance;
+                if (devices.Count > 0)
+                {
+                    // Try to find a suitable network interface (prefer Ethernet/WiFi)
+                    _activeDevice = devices.OfType<LibPcapLiveDevice>()
+                        .FirstOrDefault(d => d.Description.Contains("Ethernet") || d.Description.Contains("Wi-Fi") || d.Description.Contains("Wireless"))
+                        ?? devices[0] as LibPcapLiveDevice;
+                    
+                    _selectedInterface = _activeDevice?.Description;
+                    Console.WriteLine($"Auto-selected network interface: {_selectedInterface}");
+                }
+            }
+        }
+    }
+
+    public List<string> GetAvailableNetworkInterfaces()
+    {
+        var devices = CaptureDeviceList.Instance;
+        return devices.Select(d => d.Description ?? d.Name).ToList();
     }
 }
 

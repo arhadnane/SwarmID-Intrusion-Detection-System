@@ -49,6 +49,16 @@ public interface ITrafficCollector
     Task StopMonitoringAsync();
     
     /// <summary>
+    /// Configures monitoring mode (Simulation or Real-time)
+    /// </summary>
+    void SetMonitoringMode(bool realTimeMode);
+    
+    /// <summary>
+    /// Gets available network interfaces for real-time monitoring
+    /// </summary>
+    List<string> GetAvailableNetworkInterfaces();
+    
+    /// <summary>
     /// Event fired when new traffic data is available
     /// </summary>
     event EventHandler<NetworkTrafficRecord> TrafficDataReceived;
