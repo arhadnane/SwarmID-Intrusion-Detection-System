@@ -15,6 +15,7 @@ namespace SwarmID.TrafficAnalysis;
 /// </summary>
 public class ZeekLogParser : ITrafficCollector
 {
+    public bool IsMonitoring => _isMonitoring;
     public event EventHandler<NetworkTrafficRecord>? TrafficDataReceived;
     private bool _isMonitoring = false;
     private CancellationTokenSource? _monitoringCancellation;
@@ -77,8 +78,7 @@ public class ZeekLogParser : ITrafficCollector
                     }
                 }
             }, _monitoringCancellation.Token);
-        }
-        else if (_monitoringMode == TrafficMonitoringMode.RealTime)
+        }        else if (_monitoringMode == TrafficMonitoringMode.RealTime)
         {
             // Real-time traffic monitoring using LibPcap
             _ = Task.Run(() =>
@@ -92,6 +92,12 @@ public class ZeekLogParser : ITrafficCollector
                     {
                         try
                         {
+                            // Check if monitoring is still active
+                            if (!_isMonitoring || _monitoringCancellation?.Token.IsCancellationRequested == true)
+                            {
+                                return;
+                            }
+                            
                             var record = ParsePacket(e.GetPacket());
                             if (record != null)
                             {
@@ -105,7 +111,25 @@ public class ZeekLogParser : ITrafficCollector
                     };
 
                     _activeDevice.Open();
-                    _activeDevice.Capture();
+                    
+                    // Start capture with monitoring checks
+                    while (_isMonitoring && !_monitoringCancellation.Token.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            _activeDevice.Capture(1000); // Capture for 1 second intervals
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error during packet capture: {ex.Message}");
+                            break;
+                        }
+                    }
+                    
                     _activeDevice.Close();
                 }
                 catch (Exception ex)
@@ -116,13 +140,46 @@ public class ZeekLogParser : ITrafficCollector
         }
 
         await Task.CompletedTask;
-    }
-
-    public async Task StopMonitoringAsync()
+    }    public async Task StopMonitoringAsync()
     {
+        if (!_isMonitoring)
+            return;
+            
         _isMonitoring = false;
+        
+        // Cancel monitoring first
         _monitoringCancellation?.Cancel();
+        
+        // Stop LibPcap device if it's active
+        if (_activeDevice != null && _activeDevice.Started)
+        {
+            try
+            {
+                _activeDevice.StopCapture();
+                _activeDevice.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error stopping network device: {ex.Message}");
+            }
+        }
+        
+        // Give a small delay to ensure background tasks finish
+        if (_monitoringCancellation != null)
+        {
+            try
+            {
+                await Task.Delay(100); // Wait 100ms for tasks to clean up
+            }
+            catch (Exception)
+            {
+                // Ignore delay errors
+            }
+        }
+        
         _monitoringCancellation?.Dispose();
+        _monitoringCancellation = null;
+        
         await Task.CompletedTask;
     }
 
@@ -389,13 +446,13 @@ public class ZeekLogParser : ITrafficCollector
     {
         var protocols = new[] { "TCP", "UDP", "ICMP" };
         
-        // Include your real network range 192.168.88.xxx for simulation
+        // Include your real network range  for simulation
         var srcIps = new[] { 
-            "192.168.88.100", "192.168.88.101", "192.168.88.102", "192.168.88.103", "192.168.88.105",
+            "192.168.99.100", "192.168.99.101", "192.168.99.102", "192.168.99.103", "192.168.99.105",
             "192.168.1.100", "192.168.1.101", "10.0.0.1", "172.16.0.1" 
         };
         var dstIps = new[] { 
-            "8.8.8.8", "1.1.1.1", "192.168.88.1", "192.168.88.254", 
+            "8.8.8.8", "1.1.1.1", "192.168.99.1", "192.168.99.254", 
             "192.168.1.1", "10.0.0.254", "172.16.0.254" 
         };
         var commonPorts = new[] { 80, 443, 22, 25, 53, 21, 23, 3389, 1433, 3306 };
@@ -448,6 +505,34 @@ public class ZeekLogParser : ITrafficCollector
         else
         {
             Console.WriteLine("Invalid selection.");
+        }
+    }    public async Task SetMonitoringModeAsync(bool realTimeMode)
+    {
+        // If monitoring is active, stop it first
+        if (_isMonitoring)
+        {
+            await StopMonitoringAsync();
+        }
+        
+        _monitoringMode = realTimeMode ? TrafficMonitoringMode.RealTime : TrafficMonitoringMode.Simulation;
+        
+        if (realTimeMode)
+        {
+            // Auto-select the first available network interface if none selected
+            if (_activeDevice == null)
+            {
+                var devices = CaptureDeviceList.Instance;
+                if (devices.Count > 0)
+                {
+                    // Try to find a suitable network interface (prefer Ethernet/WiFi)
+                    _activeDevice = devices.OfType<LibPcapLiveDevice>()
+                        .FirstOrDefault(d => d.Description.Contains("Ethernet") || d.Description.Contains("Wi-Fi") || d.Description.Contains("Wireless"))
+                        ?? devices[0] as LibPcapLiveDevice;
+                    
+                    _selectedInterface = _activeDevice?.Description;
+                    Console.WriteLine($"Auto-selected network interface: {_selectedInterface}");
+                }
+            }
         }
     }
 
