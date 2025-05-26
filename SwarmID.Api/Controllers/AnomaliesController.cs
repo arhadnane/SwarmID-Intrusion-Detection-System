@@ -20,24 +20,62 @@ public class AnomaliesController : ControllerBase
         _anomalyRepository = anomalyRepository;
         _swarmDetector = swarmDetector;
         _logger = logger;
-    }
-
-    /// <summary>
-    /// Get all anomalies with optional date filtering
+    }    /// <summary>
+    /// Get all anomalies with optional date and type filtering
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Anomaly>>> GetAnomalies(
         [FromQuery] DateTime? from = null,
-        [FromQuery] DateTime? to = null)
+        [FromQuery] DateTime? to = null,
+        [FromQuery] AnomalyType? type = null)
     {
         try
         {
-            var anomalies = await _anomalyRepository.GetAnomaliesAsync(from, to);
+            var anomalies = await _anomalyRepository.GetAnomaliesAsync(from, to, type);
             return Ok(anomalies);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving anomalies");
+            return StatusCode(500, "Internal server error");
+        }
+    }    /// <summary>
+    /// Get paginated anomalies with optional date and type filtering
+    /// </summary>
+    [HttpGet("paged")]
+    public async Task<ActionResult<object>> GetAnomaliesPaged(
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        [FromQuery] AnomalyType? type = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20)
+    {
+        try
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+            var (anomalies, totalCount) = await _anomalyRepository.GetAnomaliesPagedAsync(from, to, type, page, pageSize);
+            
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            
+            return Ok(new
+            {
+                Data = anomalies,
+                Pagination = new
+                {
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    TotalPages = totalPages,
+                    HasPrevious = page > 1,
+                    HasNext = page < totalPages
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving paginated anomalies");
             return StatusCode(500, "Internal server error");
         }
     }

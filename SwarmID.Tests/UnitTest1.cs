@@ -105,23 +105,23 @@ public class AntColonyOptimizationDetectorTests
         Assert.NotNull(result);
         Assert.Equal(0, result.Score);
         Assert.Equal(AnomalyType.Normal, result.Type);
-    }
-
-    [Fact]
-    public async Task AnalyzeTrafficAsync_SavesDetectedAnomaly_WhenAnomalyDetected()
+    }    [Fact]
+    public async Task AnalyzeTrafficAsync_DetectsAnomalyWithCorrectProperties_WhenAnomalyDetected()
     {
         // Arrange
-        var traffic = CreatePortScanTraffic();        _mockRepository.Setup(r => r.SaveAnomalyAsync(It.IsAny<Anomaly>()))
-                      .Returns(Task.CompletedTask);
+        var traffic = CreatePortScanTraffic();
 
         // Act
         var result = await _detector.AnalyzeTrafficAsync(traffic, _config);
 
         // Assert
-        _mockRepository.Verify(r => r.SaveAnomalyAsync(It.Is<Anomaly>(a => 
-            a.Type == AnomalyType.PortScan && 
-            a.Score >= _config.AnomalyThreshold)), 
-            Times.Once);
+        Assert.NotNull(result);
+        Assert.Equal(AnomalyType.PortScan, result.Type);
+        Assert.True(result.Score >= _config.AnomalyThreshold);
+        Assert.Contains("Port scan", result.Description);
+        Assert.Equal("Ant Colony Optimization", result.Algorithm);
+        
+        // Note: Anomaly persistence is handled by calling controllers, not by the detector itself
     }
 
     [Theory]

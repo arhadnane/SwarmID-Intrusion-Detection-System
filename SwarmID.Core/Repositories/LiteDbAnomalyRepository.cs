@@ -21,7 +21,7 @@ public class LiteDbAnomalyRepository : IAnomalyRepository, IDisposable
         _anomalies.EnsureIndex(x => x.DetectedAt);
         _anomalies.EnsureIndex(x => x.Status);
         _anomalies.EnsureIndex(x => x.Type);
-    }    public async Task<IEnumerable<Anomaly>> GetAnomaliesAsync(DateTime? from = null, DateTime? to = null)
+    }    public async Task<IEnumerable<Anomaly>> GetAnomaliesAsync(DateTime? from = null, DateTime? to = null, AnomalyType? type = null)
     {
         return await Task.Run(() =>
         {
@@ -37,7 +37,64 @@ public class LiteDbAnomalyRepository : IAnomalyRepository, IDisposable
                 query = query.Where(x => x.DetectedAt <= endOfDay);
             }
 
+            if (type.HasValue)
+                query = query.Where(x => x.Type == type.Value);
+
             return query.OrderByDescending(x => x.DetectedAt).ToList();
+        });
+    }    public async Task<(IEnumerable<Anomaly> Anomalies, int TotalCount)> GetAnomaliesPagedAsync(
+        DateTime? from = null, 
+        DateTime? to = null, 
+        AnomalyType? type = null,
+        int page = 1, 
+        int pageSize = 20)
+    {
+        return await Task.Run(() =>
+        {
+            var query = _anomalies.Query();
+
+            if (from.HasValue)
+                query = query.Where(x => x.DetectedAt >= from.Value);
+
+            if (to.HasValue)
+            {
+                var endOfDay = to.Value.Date.AddDays(1).AddMilliseconds(-1);
+                query = query.Where(x => x.DetectedAt <= endOfDay);
+            }
+
+            if (type.HasValue)
+                query = query.Where(x => x.Type == type.Value);
+
+            var totalCount = query.Count();
+            var skip = (page - 1) * pageSize;
+            
+            var anomalies = query
+                .OrderByDescending(x => x.DetectedAt)
+                .Skip(skip)
+                .Limit(pageSize)
+                .ToList();
+
+            return (anomalies, totalCount);
+        });
+    }    public async Task<int> GetAnomaliesCountAsync(DateTime? from = null, DateTime? to = null, AnomalyType? type = null)
+    {
+        return await Task.Run(() =>
+        {
+            var query = _anomalies.Query();
+
+            if (from.HasValue)
+                query = query.Where(x => x.DetectedAt >= from.Value);
+
+            if (to.HasValue)
+            {
+                var endOfDay = to.Value.Date.AddDays(1).AddMilliseconds(-1);
+                query = query.Where(x => x.DetectedAt <= endOfDay);
+            }
+
+            if (type.HasValue)
+                query = query.Where(x => x.Type == type.Value);
+
+            return query.Count();
         });
     }public async Task<Anomaly?> GetAnomalyByIdAsync(string id)
     {

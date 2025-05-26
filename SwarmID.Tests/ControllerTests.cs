@@ -31,7 +31,7 @@ public class AnomaliesControllerTests
             CreateTestAnomaly(AnomalyType.PortScan),
             CreateTestAnomaly(AnomalyType.DDoS)
         };
-        _mockRepository.Setup(r => r.GetAnomaliesAsync(null, null)).ReturnsAsync(anomalies);
+        _mockRepository.Setup(r => r.GetAnomaliesAsync(null, null, null)).ReturnsAsync(anomalies);
 
         // Act
         var result = await _controller.GetAnomalies();
@@ -146,6 +146,61 @@ public class AnomaliesControllerTests
 
         // Assert
         Assert.IsType<NotFoundResult>(result);
+    }    [Fact]
+    public async Task GetAnomalies_WithTypeFilter_ReturnsFilteredAnomalies()
+    {
+        // Arrange
+        var anomalies = new List<Anomaly>
+        {
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.DDoS)
+        };
+        _mockRepository.Setup(r => r.GetAnomaliesAsync(null, null, AnomalyType.PortScan))
+                       .ReturnsAsync(anomalies.Where(a => a.Type == AnomalyType.PortScan).ToList());
+
+        // Act
+        var result = await _controller.GetAnomalies(type: AnomalyType.PortScan);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var returnedAnomalies = Assert.IsType<List<Anomaly>>(okResult.Value);
+        Assert.Single(returnedAnomalies);
+        Assert.Equal(AnomalyType.PortScan, returnedAnomalies.First().Type);
+    }
+
+    [Fact]
+    public async Task GetAnomaliesPaged_WithTypeFilter_ReturnsFilteredPagedAnomalies()
+    {
+        // Arrange
+        var anomalies = new List<Anomaly>
+        {
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.DDoS)
+        };
+        var filteredAnomalies = anomalies.Where(a => a.Type == AnomalyType.PortScan);
+        _mockRepository.Setup(r => r.GetAnomaliesPagedAsync(null, null, AnomalyType.PortScan, 1, 20))
+                      .ReturnsAsync((filteredAnomalies, 2));
+
+        // Act
+        var result = await _controller.GetAnomaliesPaged(type: AnomalyType.PortScan);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var response = okResult.Value;
+        Assert.NotNull(response);
+        
+        // Check the structure using reflection since it's an anonymous type
+        var dataProperty = response.GetType().GetProperty("Data");
+        var paginationProperty = response.GetType().GetProperty("Pagination");
+        
+        Assert.NotNull(dataProperty);
+        Assert.NotNull(paginationProperty);
+        
+        var data = dataProperty.GetValue(response) as IEnumerable<Anomaly>;
+        Assert.NotNull(data);
+        Assert.Equal(2, data.Count());
+        Assert.All(data, a => Assert.Equal(AnomalyType.PortScan, a.Type));
     }
 
     private Anomaly CreateTestAnomaly(AnomalyType type = AnomalyType.PortScan)

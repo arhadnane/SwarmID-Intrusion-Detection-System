@@ -130,6 +130,91 @@ public class LiteDbAnomalyRepositoryTests : IDisposable
         Assert.Null(deletedAnomaly);
     }
 
+    [Fact]
+    public async Task GetAnomaliesAsync_WithTypeFilter_ShouldReturnOnlyMatchingTypes()
+    {
+        // Arrange
+        var portScanAnomaly = CreateTestAnomaly(AnomalyType.PortScan);
+        var ddosAnomaly = CreateTestAnomaly(AnomalyType.DDoS);
+        var c2Anomaly = CreateTestAnomaly(AnomalyType.CommandAndControl);
+
+        await _repository.SaveAnomalyAsync(portScanAnomaly);
+        await _repository.SaveAnomalyAsync(ddosAnomaly);
+        await _repository.SaveAnomalyAsync(c2Anomaly);
+
+        // Act
+        var portScanResults = await _repository.GetAnomaliesAsync(type: AnomalyType.PortScan);
+        var ddosResults = await _repository.GetAnomaliesAsync(type: AnomalyType.DDoS);
+
+        // Assert
+        Assert.Single(portScanResults);
+        Assert.Single(ddosResults);
+        Assert.Equal(AnomalyType.PortScan, portScanResults.First().Type);
+        Assert.Equal(AnomalyType.DDoS, ddosResults.First().Type);
+    }
+
+    [Fact]
+    public async Task GetAnomaliesPagedAsync_WithTypeFilter_ShouldReturnOnlyMatchingTypes()
+    {
+        // Arrange
+        var portScanAnomalies = new List<Anomaly>
+        {
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.PortScan)
+        };
+        var ddosAnomalies = new List<Anomaly>
+        {
+            CreateTestAnomaly(AnomalyType.DDoS),
+            CreateTestAnomaly(AnomalyType.DDoS)
+        };
+
+        foreach (var anomaly in portScanAnomalies.Concat(ddosAnomalies))
+        {
+            await _repository.SaveAnomalyAsync(anomaly);
+        }
+
+        // Act
+        var (portScanResults, portScanCount) = await _repository.GetAnomaliesPagedAsync(type: AnomalyType.PortScan, page: 1, pageSize: 10);
+        var (ddosResults, ddosCount) = await _repository.GetAnomaliesPagedAsync(type: AnomalyType.DDoS, page: 1, pageSize: 10);
+
+        // Assert
+        Assert.Equal(3, portScanCount);
+        Assert.Equal(2, ddosCount);
+        Assert.Equal(3, portScanResults.Count());
+        Assert.Equal(2, ddosResults.Count());
+        Assert.All(portScanResults, a => Assert.Equal(AnomalyType.PortScan, a.Type));
+        Assert.All(ddosResults, a => Assert.Equal(AnomalyType.DDoS, a.Type));
+    }
+
+    [Fact]
+    public async Task GetAnomaliesCountAsync_WithTypeFilter_ShouldReturnCorrectCount()
+    {
+        // Arrange
+        var anomalies = new List<Anomaly>
+        {
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.PortScan),
+            CreateTestAnomaly(AnomalyType.DDoS),
+            CreateTestAnomaly(AnomalyType.CommandAndControl)
+        };
+
+        foreach (var anomaly in anomalies)
+        {
+            await _repository.SaveAnomalyAsync(anomaly);
+        }
+
+        // Act
+        var totalCount = await _repository.GetAnomaliesCountAsync();
+        var portScanCount = await _repository.GetAnomaliesCountAsync(type: AnomalyType.PortScan);
+        var ddosCount = await _repository.GetAnomaliesCountAsync(type: AnomalyType.DDoS);
+
+        // Assert
+        Assert.Equal(4, totalCount);
+        Assert.Equal(2, portScanCount);
+        Assert.Equal(1, ddosCount);
+    }
+
     private Anomaly CreateTestAnomaly(AnomalyType type = AnomalyType.PortScan)
     {
         return new Anomaly

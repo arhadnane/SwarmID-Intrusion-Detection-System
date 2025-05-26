@@ -78,11 +78,18 @@ public interface ITrafficCollector
 /// </summary>
 public interface IAnomalyRepository
 {
-    Task<IEnumerable<Anomaly>> GetAnomaliesAsync(DateTime? from = null, DateTime? to = null);
+    Task<IEnumerable<Anomaly>> GetAnomaliesAsync(DateTime? from = null, DateTime? to = null, AnomalyType? type = null);
+    Task<(IEnumerable<Anomaly> Anomalies, int TotalCount)> GetAnomaliesPagedAsync(
+        DateTime? from = null, 
+        DateTime? to = null, 
+        AnomalyType? type = null,
+        int page = 1, 
+        int pageSize = 20);
     Task<Anomaly?> GetAnomalyByIdAsync(string id);
     Task SaveAnomalyAsync(Anomaly anomaly);
     Task UpdateAnomalyAsync(Anomaly anomaly);
     Task DeleteAnomalyAsync(string id);
+    Task<int> GetAnomaliesCountAsync(DateTime? from = null, DateTime? to = null, AnomalyType? type = null);
 }
 
 /// <summary>
