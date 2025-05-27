@@ -5,6 +5,7 @@ using SwarmID.Core.Algorithms;
 using SwarmID.Core.Repositories;
 using SwarmID.Core.Models;
 using SwarmID.TrafficAnalysis;
+using SwarmID.Dashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,17 +28,19 @@ builder.Services.AddSingleton<IAnomalyRepository>(provider =>
     return new LiteDbAnomalyRepository(connectionString);
 });
 
-builder.Services.AddSingleton<ISwarmDetector>(provider =>
+// Register swarm intelligence algorithms
+builder.Services.AddScoped<AntColonyOptimizationDetector>();
+builder.Services.AddScoped<BeeAlgorithmDetector>();
+builder.Services.AddScoped<ParticleSwarmOptimizationDetector>();
+
+// Register algorithm selection service
+builder.Services.AddSingleton<IAlgorithmSelectionService, AlgorithmSelectionService>();
+
+// Register dynamic swarm detector that uses the algorithm selection service
+builder.Services.AddScoped<ISwarmDetector>(provider =>
 {
-    var repository = provider.GetRequiredService<IAnomalyRepository>();
-    var config = new SwarmConfiguration
-    {
-        NumberOfAnts = 50,
-        MaxIterations = 100,
-        PheromoneEvaporationRate = 0.1,
-        AnomalyThreshold = 70.0
-    };
-    return new AntColonyOptimizationDetector(repository);
+    var algorithmService = provider.GetRequiredService<IAlgorithmSelectionService>();
+    return algorithmService.GetCurrentDetector();
 });
 
 builder.Services.AddSingleton<ITrafficCollector, ZeekLogParser>();

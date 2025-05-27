@@ -80,12 +80,20 @@ public class SwarmConfiguration
     public double Alpha { get; set; } = 1.0; // Pheromone importance
     public double Beta { get; set; } = 2.0;  // Heuristic importance
     public double Q { get; set; } = 100.0;   // Pheromone deposit factor
-    
-    // Bee Algorithm parameters
+      // Bee Algorithm parameters
     public int NumberOfEmployedBees { get; set; } = 10;
     public int NumberOfOnlookerBees { get; set; } = 10;
     public int MaxTrialCount { get; set; } = 5;
     public double AcceptanceProbability { get; set; } = 0.1;
+    
+    // Particle Swarm Optimization parameters
+    public int NumberOfParticles { get; set; } = 20;
+    public double InertiaWeight { get; set; } = 0.9;
+    public double CognitiveComponent { get; set; } = 2.0;  // c1: Personal learning factor
+    public double SocialComponent { get; set; } = 2.0;     // c2: Global learning factor
+    public double MinInertiaWeight { get; set; } = 0.4;    // Minimum inertia weight
+    public double MaxVelocity { get; set; } = 10.0;        // Maximum velocity clamp
+    public double FeedbackWeight { get; set; } = 0.1;     // Feedback learning weight
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;

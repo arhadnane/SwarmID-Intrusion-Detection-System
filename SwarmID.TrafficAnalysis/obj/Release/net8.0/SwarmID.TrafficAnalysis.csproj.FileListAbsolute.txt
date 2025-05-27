@@ -1,0 +1,16 @@
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\bin\Release\net8.0\SwarmID.TrafficAnalysis.deps.json
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\bin\Release\net8.0\SwarmID.TrafficAnalysis.dll
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\bin\Release\net8.0\SwarmID.TrafficAnalysis.pdb
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\bin\Release\net8.0\SwarmID.Core.dll
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\bin\Release\net8.0\SwarmID.Core.pdb
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.csproj.AssemblyReference.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.GeneratedMSBuildEditorConfig.editorconfig
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.AssemblyInfoInputs.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.AssemblyInfo.cs
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.csproj.CoreCompileInputs.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.sourcelink.json
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID..27B179C6.Up2Date
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.dll
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\refint\SwarmID.TrafficAnalysis.dll
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\SwarmID.TrafficAnalysis.pdb
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.TrafficAnalysis\obj\Release\net8.0\ref\SwarmID.TrafficAnalysis.dll

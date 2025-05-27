@@ -1,18 +1,453 @@
 ﻿@page "/counter"
+@using SwarmID.Core.Models
+@using SwarmID.Dashboard.Services
+@inject IAlgorithmSelectionService AlgorithmService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Algorithm Configuration</PageTitle>
 
-<h1>Counter</h1>
+<h1>🧠 Algorithm Configuration</h1>
 
-<p role="status">Current count: @currentCount</p>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <h4>🔧 Dynamic Algorithm Selection</h4>
+            <p class="mb-0">
+                Switch between different swarm intelligence algorithms in real-time. 
+                Configure parameters to optimize detection performance for your specific network environment.
+            </p>
+        </div>
+    </div>
+</div>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<!-- Current Algorithm Status -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-header">🎯 Current Algorithm</div>
+            <div class="card-body">
+                <h4 class="card-title">@currentAlgorithm</h4>
+                <p class="card-text">@GetAlgorithmDescription(currentAlgorithm)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-header">📊 Status</div>
+            <div class="card-body">
+                <h4 class="card-title">Active</h4>
+                <p class="card-text">Algorithm is ready for detection</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-header">⏰ Last Changed</div>
+            <div class="card-body">
+                <h4 class="card-title">@lastChangedTime.ToString("HH:mm:ss")</h4>
+                <p class="card-text">@lastChangedTime.ToString("yyyy-MM-dd")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Algorithm Selection -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">🔄 Select Algorithm</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach (var algorithm in availableAlgorithms)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card @(algorithm == currentAlgorithm ? "border-primary" : "")">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        @GetAlgorithmIcon(algorithm) @algorithm
+                                        @if (algorithm == currentAlgorithm)
+                                        {
+                                            <span class="badge bg-primary ms-2">Current</span>
+                                        }
+                                    </h6>
+                                    <p class="card-text">
+                                        <small>@GetAlgorithmDescription(algorithm)</small>
+                                    </p>
+                                    <div class="mb-2">
+                                        <strong>Best for:</strong>
+                                        <br><small class="text-muted">@GetAlgorithmUseCases(algorithm)</small>
+                                    </div>
+                                    <button class="btn @(algorithm == currentAlgorithm ? "btn-outline-primary" : "btn-primary") btn-sm"
+                                            @onclick="() => SelectAlgorithm(algorithm)"
+                                            disabled="@(algorithm == currentAlgorithm || isChanging)">
+                                        @if (isChanging && selectedAlgorithm == algorithm)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-1"></span>
+                                        }
+                                        @(algorithm == currentAlgorithm ? "Active" : "Select")
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuration Parameters -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">⚙️ Algorithm Parameters</h5>
+            </div>
+            <div class="card-body">
+                @if (currentConfiguration != null)
+                {
+                    <div class="row">
+                        @switch (currentAlgorithm)
+                        {
+                            case "ACO":
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Number of Ants</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.NumberOfAnts" min="10" max="200" />
+                                        <small class="text-muted">Recommended: 30-100</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Pheromone Evaporation Rate</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.PheromoneEvaporationRate" 
+                                               step="0.01" min="0.01" max="0.5" />
+                                        <small class="text-muted">Recommended: 0.1-0.3</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Alpha (Pheromone Importance)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.Alpha" 
+                                               step="0.1" min="0.1" max="5.0" />
+                                        <small class="text-muted">Recommended: 1.0-2.0</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Beta (Heuristic Importance)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.Beta" 
+                                               step="0.1" min="0.1" max="5.0" />
+                                        <small class="text-muted">Recommended: 2.0-3.0</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Iterations</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.MaxIterations" min="50" max="500" />
+                                        <small class="text-muted">Recommended: 100-200</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Anomaly Threshold (%)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.AnomalyThreshold" 
+                                               step="1" min="50" max="95" />
+                                        <small class="text-muted">Recommended: 70-80</small>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "BEE":
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Employed Bees</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.NumberOfEmployedBees" min="10" max="100" />
+                                        <small class="text-muted">Recommended: 15-30</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Onlooker Bees</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.NumberOfOnlookerBees" min="10" max="100" />
+                                        <small class="text-muted">Recommended: 20-40</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Trial Count</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.MaxTrialCount" min="5" max="50" />
+                                        <small class="text-muted">Recommended: 10-20</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Acceptance Probability</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.AcceptanceProbability" 
+                                               step="0.01" min="0.1" max="1.0" />
+                                        <small class="text-muted">Recommended: 0.7-0.9</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Iterations</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.MaxIterations" min="50" max="500" />
+                                        <small class="text-muted">Recommended: 100-200</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Anomaly Threshold (%)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.AnomalyThreshold" 
+                                               step="1" min="50" max="95" />
+                                        <small class="text-muted">Recommended: 70-80</small>
+                                    </div>
+                                </div>
+                                break;
+
+                            case "PSO":
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Number of Particles</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.NumberOfParticles" min="10" max="100" />
+                                        <small class="text-muted">Recommended: 20-50</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Inertia Weight</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.InertiaWeight" 
+                                               step="0.001" min="0.1" max="1.0" />
+                                        <small class="text-muted">Recommended: 0.6-0.8</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Cognitive Component (c1)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.CognitiveComponent" 
+                                               step="0.01" min="0.5" max="3.0" />
+                                        <small class="text-muted">Recommended: 1.2-2.0</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Social Component (c2)</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.SocialComponent" 
+                                               step="0.01" min="0.5" max="3.0" />
+                                        <small class="text-muted">Recommended: 1.2-2.0</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Min Inertia Weight</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.MinInertiaWeight" 
+                                               step="0.001" min="0.1" max="0.8" />
+                                        <small class="text-muted">Recommended: 0.3-0.5</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Max Velocity</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.MaxVelocity" 
+                                               step="0.1" min="1.0" max="10.0" />
+                                        <small class="text-muted">Recommended: 3.0-6.0</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Anomaly Threshold</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.AnomalyThreshold" 
+                                               step="0.01" min="0.5" max="0.95" />
+                                        <small class="text-muted">Recommended: 0.6-0.8</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Feedback Weight</label>
+                                        <input type="number" class="form-control" @bind="currentConfiguration.FeedbackWeight" 
+                                               step="0.01" min="0.01" max="0.5" />
+                                        <small class="text-muted">Recommended: 0.05-0.15</small>
+                                    </div>
+                                </div>
+                                break;
+                        }
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-success" @onclick="ApplyConfiguration" disabled="@isChanging">
+                            @if (isChanging)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            Apply Configuration
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="ResetToDefaults">
+                            Reset to Defaults
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Comparison -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">📈 Algorithm Comparison</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Algorithm</th>
+                                <th>Best Use Case</th>
+                                <th>Complexity</th>
+                                <th>Performance</th>
+                                <th>Adaptability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="@(currentAlgorithm == "ACO" ? "table-primary" : "")">
+                                <td><strong>🐜 ACO</strong></td>
+                                <td>Dynamic routing patterns, path optimization</td>
+                                <td><span class="badge bg-warning">Medium</span></td>
+                                <td><span class="badge bg-success">High</span></td>
+                                <td><span class="badge bg-info">Good</span></td>
+                            </tr>
+                            <tr class="@(currentAlgorithm == "BEE" ? "table-primary" : "")">
+                                <td><strong>🐝 Bee Algorithm</strong></td>
+                                <td>Multi-objective optimization, exploration</td>
+                                <td><span class="badge bg-info">Low</span></td>
+                                <td><span class="badge bg-info">Medium</span></td>
+                                <td><span class="badge bg-success">Excellent</span></td>
+                            </tr>
+                            <tr class="@(currentAlgorithm == "PSO" ? "table-primary" : "")">
+                                <td><strong>🔄 PSO</strong></td>
+                                <td>Real-time adaptation, continuous optimization</td>
+                                <td><span class="badge bg-success">Low</span></td>
+                                <td><span class="badge bg-success">High</span></td>
+                                <td><span class="badge bg-success">Excellent</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-    private int currentCount = 0;
+    private string currentAlgorithm = "PSO";
+    private SwarmConfiguration? currentConfiguration;
+    private List<string> availableAlgorithms = new();
+    private DateTime lastChangedTime = DateTime.Now;
+    private bool isChanging = false;
+    private string selectedAlgorithm = "";
 
-    private void IncrementCount()
+    protected override async Task OnInitializedAsync()
     {
-        currentCount++;
+        // Subscribe to algorithm changes
+        AlgorithmService.AlgorithmChanged += OnAlgorithmChanged;
+        
+        // Initialize state
+        currentAlgorithm = AlgorithmService.CurrentAlgorithm;
+        currentConfiguration = AlgorithmService.CurrentConfiguration;        availableAlgorithms = AlgorithmService.GetAvailableAlgorithms();
+        
+        await Task.CompletedTask; // Make method properly async
+        StateHasChanged();
+    }
+
+    private async Task SelectAlgorithm(string algorithmType)
+    {
+        if (algorithmType == currentAlgorithm || isChanging) return;
+
+        try
+        {
+            isChanging = true;
+            selectedAlgorithm = algorithmType;
+            StateHasChanged();
+
+            var success = await AlgorithmService.SwitchAlgorithmAsync(algorithmType);
+            
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", 
+                    $"Successfully switched to {algorithmType} algorithm!");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", 
+                    $"Failed to switch to {algorithmType} algorithm.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", 
+                $"Error switching algorithm: {ex.Message}");
+        }
+        finally
+        {
+            isChanging = false;
+            selectedAlgorithm = "";
+            StateHasChanged();
+        }
+    }
+
+    private async Task ApplyConfiguration()
+    {
+        if (currentConfiguration == null || isChanging) return;
+
+        try
+        {
+            isChanging = true;
+            StateHasChanged();
+
+            var success = await AlgorithmService.SwitchAlgorithmAsync(currentAlgorithm, currentConfiguration);
+            
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Configuration applied successfully!");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Failed to apply configuration.");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error applying configuration: {ex.Message}");
+        }
+        finally
+        {
+            isChanging = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ResetToDefaults()
+    {
+        currentConfiguration = AlgorithmService.GetDefaultConfiguration(currentAlgorithm);
+        StateHasChanged();
+    }
+
+    private void OnAlgorithmChanged(object? sender, AlgorithmChangedEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            currentAlgorithm = AlgorithmService.CurrentAlgorithm;
+            currentConfiguration = AlgorithmService.CurrentConfiguration;
+            lastChangedTime = e.ChangedAt;
+            StateHasChanged();
+        });
+    }
+
+    private string GetAlgorithmIcon(string algorithm) => algorithm switch
+    {
+        "ACO" => "🐜",
+        "BEE" => "🐝",
+        "PSO" => "🔄",
+        _ => "🧠"
+    };
+
+    private string GetAlgorithmDescription(string algorithm) => algorithm switch
+    {
+        "ACO" => "Ant Colony Optimization",
+        "BEE" => "Artificial Bee Colony",
+        "PSO" => "Particle Swarm Optimization",
+        _ => "Unknown Algorithm"
+    };
+
+    private string GetAlgorithmUseCases(string algorithm) => algorithm switch
+    {
+        "ACO" => "Network routing, graph-based problems, path optimization",
+        "BEE" => "Multi-objective optimization, exploration-exploitation balance",
+        "PSO" => "Real-time optimization, continuous search spaces, adaptive systems",
+        _ => "General optimization problems"
+    };
+
+    public void Dispose()
+    {
+        AlgorithmService.AlgorithmChanged -= OnAlgorithmChanged;
     }
 }

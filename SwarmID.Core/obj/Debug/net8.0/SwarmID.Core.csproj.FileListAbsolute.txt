@@ -6,6 +6,7 @@ D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Int
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.AssemblyInfoInputs.cache
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.AssemblyInfo.cs
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.csproj.CoreCompileInputs.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.sourcelink.json
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.dll
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\refint\SwarmID.Core.dll
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Core\obj\Debug\net8.0\SwarmID.Core.pdb

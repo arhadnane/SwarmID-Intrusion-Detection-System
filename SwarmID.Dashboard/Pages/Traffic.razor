@@ -1,14 +1,24 @@
 @page "/traffic"
 @using SwarmID.Core.Models
 @using SwarmID.Core.Interfaces
+@using SwarmID.Dashboard.Services
 @inject ITrafficCollector TrafficCollector
 @inject ISwarmDetector SwarmDetector
 @inject IAnomalyRepository AnomalyRepository
+@inject IAlgorithmSelectionService AlgorithmService
 @inject IJSRuntime JSRuntime
 
 <PageTitle>Traffic Analysis</PageTitle>
 
-<h1>Network Traffic Analysis</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Network Traffic Analysis</h1>
+    <div class="d-flex align-items-center">
+        <span class="badge bg-info me-2">Algorithm: @AlgorithmService.CurrentAlgorithm</span>
+        <a href="/counter" class="btn btn-outline-primary btn-sm">
+            <i class="oi oi-cog"></i> Change Algorithm
+        </a>
+    </div>
+</div>
 
 <div class="row mb-4">
     <div class="col-md-6">

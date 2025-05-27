@@ -22,6 +22,7 @@ D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Int
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\SwarmID.Dashboard.MvcApplicationPartsAssemblyInfo.cache
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\SwarmID.Dashboard.RazorAssemblyInfo.cache
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\SwarmID.Dashboard.RazorAssemblyInfo.cs
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\SwarmID.Dashboard.sourcelink.json
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\scopedcss\Shared\MainLayout.razor.rz.scp.css
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\scopedcss\Shared\NavMenu.razor.rz.scp.css
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Dashboard\obj\Debug\net8.0\scopedcss\bundle\SwarmID.Dashboard.styles.css

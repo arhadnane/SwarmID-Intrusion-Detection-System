@@ -33,6 +33,7 @@ D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Int
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\SwarmID.Api.csproj.CoreCompileInputs.cache
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\SwarmID.Api.MvcApplicationPartsAssemblyInfo.cs
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\SwarmID.Api.MvcApplicationPartsAssemblyInfo.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\SwarmID.Api.sourcelink.json
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\scopedcss\bundle\SwarmID.Api.styles.css
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\staticwebassets.build.json
 D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\SwarmID.Api\obj\Debug\net8.0\staticwebassets.build.json.cache

@@ -37,17 +37,23 @@ builder.Services.AddTransient<AntColonyOptimizationDetector>();
 // Register Bee Algorithm detector
 builder.Services.AddTransient<BeeAlgorithmDetector>();
 
-// Register the primary swarm detector (can be configured to use either algorithm)
+// Register Particle Swarm Optimization detector
+builder.Services.AddTransient<ParticleSwarmOptimizationDetector>();
+
+// Register the primary swarm detector (can be configured to use any algorithm)
 builder.Services.AddSingleton<ISwarmDetector>(provider =>
 {
     var repository = provider.GetRequiredService<IAnomalyRepository>();
+      // Get algorithm selection from configuration - supports ACO, Bee, and PSO
+    var algorithmType = builder.Configuration.GetValue<string>("SwarmAlgorithm", "ACO") ?? "ACO";
     
-    // Default to Ant Colony Optimization - could be configured via appsettings
-    var useAco = builder.Configuration.GetValue<bool>("SwarmAlgorithm:UseAntColony", true);
-    
-    return useAco 
-        ? new AntColonyOptimizationDetector(repository)
-        : new BeeAlgorithmDetector(repository);
+    return algorithmType.ToUpper() switch
+    {
+        "ACO" => new AntColonyOptimizationDetector(repository),
+        "BEE" => new BeeAlgorithmDetector(repository),
+        "PSO" => new ParticleSwarmOptimizationDetector(repository),
+        _ => new AntColonyOptimizationDetector(repository) // Default to ACO
+    };
 });
 
 builder.Services.AddSingleton<ITrafficCollector, ZeekLogParser>();

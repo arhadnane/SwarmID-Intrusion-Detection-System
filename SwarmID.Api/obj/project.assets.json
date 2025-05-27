@@ -2221,11 +2221,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\SwarmID.Api.csproj",
+      "projectUniqueName": "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\SwarmID.Api.csproj",
       "projectName": "SwarmID.Api",
-      "projectPath": "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\SwarmID.Api.csproj",
+      "projectPath": "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\SwarmID.Api.csproj",
       "packagesPath": "C:\\Users\\dnaal\\.nuget\\packages\\",
-      "outputPath": "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\obj\\",
+      "outputPath": "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Api\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2247,11 +2247,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Core\\SwarmID.Core.csproj": {
-              "projectPath": "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Core\\SwarmID.Core.csproj"
+            "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Core\\SwarmID.Core.csproj": {
+              "projectPath": "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.Core\\SwarmID.Core.csproj"
             },
-            "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.TrafficAnalysis\\SwarmID.TrafficAnalysis.csproj": {
-              "projectPath": "d:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.TrafficAnalysis\\SwarmID.TrafficAnalysis.csproj"
+            "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.TrafficAnalysis\\SwarmID.TrafficAnalysis.csproj": {
+              "projectPath": "D:\\Coding\\VSCodeProject\\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\\SwarmID.TrafficAnalysis\\SwarmID.TrafficAnalysis.csproj"
             }
           }
         }

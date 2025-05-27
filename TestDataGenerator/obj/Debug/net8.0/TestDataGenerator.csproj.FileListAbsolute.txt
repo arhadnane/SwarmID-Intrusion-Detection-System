@@ -1,0 +1,6 @@
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.csproj.AssemblyReference.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.GeneratedMSBuildEditorConfig.editorconfig
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.AssemblyInfoInputs.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.AssemblyInfo.cs
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.csproj.CoreCompileInputs.cache
+D:\Coding\VSCodeProject\Anomaly-Based Intrusion Detection System Using Swarm Intelligence\TestDataGenerator\obj\Debug\net8.0\TestDataGenerator.sourcelink.json

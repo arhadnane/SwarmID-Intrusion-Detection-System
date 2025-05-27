@@ -1,7 +1,9 @@
 ﻿@page "/"
 @using SwarmID.Core.Models
 @using SwarmID.Core.Interfaces
+@using SwarmID.Dashboard.Services
 @inject IAnomalyRepository AnomalyRepository
+@inject IAlgorithmSelectionService AlgorithmService
 
 <PageTitle>Swarm-ID Dashboard</PageTitle>
 
@@ -47,13 +49,12 @@
                 <p class="card-text">All systems operational</p>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
+    </div>    <div class="col-md-3">
         <div class="card text-white bg-info">
             <div class="card-header">🔬 Algorithm</div>
             <div class="card-body">
-                <h4 class="card-title">ACO</h4>
-                <p class="card-text">Ant Colony Optimization</p>
+                <h4 class="card-title">@currentAlgorithm</h4>
+                <p class="card-text">@GetAlgorithmDescription(currentAlgorithm)</p>
             </div>
         </div>
     </div>
@@ -223,9 +224,13 @@
     private List<Anomaly>? recentAnomalies;
     private int totalAnomalies = 0;
     private int criticalAnomalies = 0;
+    private string currentAlgorithm = "PSO";
 
     protected override async Task OnInitializedAsync()
     {
+        // Get current algorithm from service
+        currentAlgorithm = AlgorithmService.CurrentAlgorithm;
+        
         try
         {
             var from = DateTime.UtcNow.AddDays(-1); // Last 24 hours
@@ -254,6 +259,14 @@
             _ => "secondary"
         };
     }
+
+    private string GetAlgorithmDescription(string algorithm) => algorithm switch
+    {
+        "ACO" => "Ant Colony Optimization",
+        "BEE" => "Artificial Bee Colony",
+        "PSO" => "Particle Swarm Optimization",
+        _ => "Unknown Algorithm"
+    };
 }
 
 <SurveyPrompt Title="How is Blazor working for you?" />
